@@ -32,11 +32,11 @@
 
 ;; set directories for org
 (setq
- org_notes "~/OneDrive/3-resources/org-roam"
+ org_notes "/mnt/c/Users/Danie/OneDrive/3-resources/org-roam"
  org-directory org_notes
  deft-directory org_notes
  org-roam-directory org_notes
- zot_bib "~/OneDrive/3-resources/masterLib.bib")
+ zot_bib "/mnt/c/Users/Danie/OneDrive/3-resources/masterLib.bib")
 
 
 (use-package org-roam
