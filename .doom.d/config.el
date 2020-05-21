@@ -60,6 +60,9 @@
       :config
       (set-company-backend! 'org-mode '(company-org-roam company-yasnippet company-dabbrev)))
 
+(use-package org-roam-server
+  :ensure t)
+
 (use-package org-journal
       :bind
       ("C-c n j" . org-journal-new-entry)
