@@ -57,6 +57,38 @@
               :map org-mode-map
               (("C-c n i" . org-roam-insert))))
 
+(after! org-roam
+  (setq org-roam-graph-viewer "/usr/bin/open")
+  (setq org-roam-ref-capture-templates
+        '(("r" "ref" plain (function org-roam-capture--get-point)
+           "%?"
+           :file-name "websites/${slug}"
+           :head "#+TITLE: ${title}
+#+ROAM_KEY: ${ref}
+- source :: ${ref}"
+           :unnarrowed t)))
+  (setq org-roam-capture-templates
+        '(
+          ("d" "default" plain (function org-roam--capture-get-point)
+           "%?"
+           :file-name "${slug}"
+           :head "#+TITLE: ${title}\n"
+           :unnarrowed t)
+
+          ("b" "book" plain (function org-roam--capture-get-point)
+           "%?"
+           :file-name "${slug}"
+           :head "#+TITLE: ${title}\n#+AUTHOR:\n"
+           :unnarrowed t)
+
+        ("m" "meeting" plain (function org-roam--capture-get-point)
+         "%?"
+         :file-name "%(format-time-string \"%Y-%m-%d--%H-%M-%SZ--${slug}\" (current-time) t)"
+         :head "#+TITLE: ${title}\n#+PARTICIPANTS:\n %(format-time-string \"%m-%d-%Y  %H:%M\" (current-time) t)"
+         :unnarrowed t))
+  )
+)
+
 (require 'company-org-roam)
     (use-package company-org-roam
       :when (featurep! :completion company)
@@ -77,6 +109,10 @@
       (org-journal-date-format "%A, %d %B %Y"))
 (setq org-journal-enable-agenda-integration t)
 
+
+(use-package org-roam-server
+    :ensure t)
+
 (use-package deft
       :after org
       :bind
@@ -89,6 +125,12 @@
 
 ;; Allows you to refile into different files - specifically to
 ;; create new 'parent' headings
+;; create 'new' parent headings
+(setq org-refile-use-outline-path 'file)
+;; makes org-refile outline working with helm/ivy
+(setq org-outline-path-complete-in-steps nil)
+(setq org-refile-allow-creating-parent-nodes 'confirm)
+;;
 (defun +org/opened-buffer-files ()
   "Return the list of files currently opened in emacs"
   (delq nil
@@ -100,9 +142,3 @@
                 (buffer-list))))
 
 (setq org-refile-targets '((+org/opened-buffer-files :maxlevel . 9)))
-
-(setq org-refile-use-outline-path 'file)
-;; makes org-refile outline working with helm/ivy
-(setq org-outline-path-complete-in-steps nil)
-(setq org-refile-allow-creating-parent-nodes 'confirm)
-;;
