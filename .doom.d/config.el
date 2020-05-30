@@ -78,13 +78,13 @@
           ("b" "book" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+TITLE: ${title}\n#+AUTHOR:\n"
+           :head "#+TITLE: ${title}\n:AUTHOR:\n:MEDIUM: [[file:Books.org][Book]]\n:GENRE:"
            :unnarrowed t)
 
         ("m" "meeting" plain (function org-roam--capture-get-point)
          "%?"
          :file-name "%(format-time-string \"%Y-%m-%d--%H-%M-%SZ--${slug}\" (current-time) t)"
-         :head "#+TITLE: ${title}\n#+PARTICIPANTS:\n %(format-time-string \"%m-%d-%Y  %H:%M\" (current-time) t)"
+         :head "#+TITLE: ${title}\n:PARTICIPANTS:\n %(format-time-string \"%m-%d-%Y  %H:%M\" (current-time) t)"
          :unnarrowed t))
   )
 )
