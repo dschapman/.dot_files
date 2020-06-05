@@ -49,4 +49,5 @@
 (package! md-roam :recipe
   (:host github :repo "nobiot/md-roam"))
 (unpin! org-roam)
+(package! company-org-roam)
 (package! centaur-tabs)

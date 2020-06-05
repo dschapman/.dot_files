@@ -102,19 +102,19 @@
         '(
           ("d" "default" plain (function org-roam--capture-get-point)
            "%?"
-           :file-name "%Y%m%d%H%M%S>-${slug}"
+           :file-name "${slug}"
            :head "#+TITLE: ${title}\n#+ROAM_ALIAS: \n"
            :unnarrowed t)
 
           ("b" "book" plain (function org-roam--capture-get-point)
            "%?"
-           :file-name "%Y%m%d%H%M%S>-${slug}"
+           :file-name "${slug}"
            :head "#+TITLE: ${title}\n:AUTHOR:\n:MEDIUM: [[file:Books.org][Book]]\n:GENRE:"
            :unnarrowed t)
 
         ("m" "meeting" plain (function org-roam--capture-get-point)
          "%?"
-         :file-name "%Y%m%d%H%M%S>-${slug}"
+         :file-name "${slug}"
          :head "#+TITLE: ${title}\n:PARTICIPANTS:\n* %m-%d-%Y  %H:%M"
          :unnarrowed t))
   )
