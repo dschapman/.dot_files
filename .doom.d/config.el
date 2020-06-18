@@ -26,10 +26,10 @@
 ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-tomorrow-day)
 
-
 ;; Hide Line numbers
 (setq display-line-numbers-type nil)
 
+(setq +doom-dashboard-banner-file (expand-file-name "misc/splash-images/logo.png" doom-private-dir))
 ;; add tabs with centaur-tabs
 ;;
 (use-package! centaur-tabs
@@ -53,30 +53,34 @@
  public_notes "~/Git-Projects/PersonalBlog/content/notes"
  org-directory org_notes
  deft-directory org_notes
- org-roam-directory org_notes
  zot_bib "~/OneDrive/3-resources/org-roam/masterLib.bib")
 
-(use-package! md-roam ; load immediately, before org-roam
-  :config
-  (setq md-roam-file-extension-single "md")) 
+
 
     ;you can omit this if md, which is the default.
 (use-package org-roam
   :init
+  (setq org-roam-directory org_notes)
   ;; add markdown extension to org-roam-file-extensions list
   (setq org-roam-file-extensions '("org" "md"))
-  (setq org-roam-directory org_notes)
   (setq org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias)))
-      :hook
+
+  :hook
       (after-init . org-roam-mode)
       :bind (:map org-roam-mode-map
-              (("C-c n l" . org-roam)
+              (("C-c n r" . org-roam)
                ("C-c n f" . org-roam-find-file)
                ("C-c n h" . org-roam-jump-to-index)
                ("C-c n b" . org-roam-switch-to-buffer)
-               ("C-c n g" . org-roam-graph))
+               ("C-c n g" . org-roam-graph)
+               ("C-c n i" . org-roam-insert)
+               )
               :map org-mode-map
-              (("C-c n i" . org-roam-insert))))
+              (("C-c n i" . org-roam-insert))
+              (("C-c n I" . org-roam-insert-immediate))))
+(use-package! md-roam ; load immediately, before org-roam
+  :config
+  (setq md-roam-file-extension-single "md")) 
 
 
 (after! org-roam
@@ -85,17 +89,25 @@
         '(("r" "ref" plain (function org-roam-capture--get-point)
            "%?"
            :file-name "websites/${slug}"
-           :head "#+TITLE: ${title}
-#+ROAM_KEY: ${ref}
+           :head "#+title: ${title}
+#+roam_key: ${ref}
+#+roam_tags:
 - source :: ${ref}"
            :unnarrowed t)))
 
+(set-company-backend! 'org-mode 'company-org-roam)
+(set-company-backend! 'markdown-mode 'company-org-roam)
 
-(after! org-roam
-  (set-company-backend! 'org-mode 'company-org-roam)
-  (set-company-backend! 'markdown-mode 'company-org-roam))
-
-
+(use-package org-roam-server
+  :ensure t
+  :config
+  (setq org-roam-server-host "127.0.0.1"
+        org-roam-server-port 8080
+        org-roam-server-export-inline-images t
+        org-roam-server-authenticate nil
+        org-roam-server-label-truncate t
+        org-roam-server-label-truncate-length 60
+        org-roam-server-label-wrap-length 20))
 
 ;;My Roam Capture Templates
   (setq org-roam-capture-templates
@@ -103,36 +115,30 @@
           ("d" "default" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+TITLE: ${title}\n#+ROAM_ALIAS: \n"
+           :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n#+roam_alias: \n#+roam_tags: \n"
            :unnarrowed t)
 
           ("b" "book" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+TITLE: ${title}\n:AUTHOR:\n:MEDIUM: [[file:Books.org][Book]]\n:GENRE:"
+           :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags:\n:author:\n:medium: [[file:Books.org][Book]]\n:GENRE:"
            :unnarrowed t)
 
         ("m" "meeting" plain (function org-roam--capture-get-point)
          "%?"
-         :file-name "${slug}"
-         :head "#+TITLE: ${title}\n:PARTICIPANTS:\n* %m-%d-%Y  %H:%M"
-         :unnarrowed t))
+         :file-name "%<%Y%m%d%H%M%S>-${slug}"
+         :head "#+title: ${title}\n:participants:\n* %<%m-%d-%Y  %H:%M>"
+         :unnarrowed t
+         :immediate-finish t))
   )
 )
-
-
-(use-package! dired
-  :config
-  (defun dired-open-public-notes-dir ()
-    "Open and switch to `public-notes-directory'."
-    (interactive)
-    (require 'ido)
-    (dired (ido-expand-directory public_notes))))
-
-
-
-(use-package org-roam-server
-  :ensure t)
+;; immediate capture
+(setq org-roam-capture-immediate-template
+      '("d" "default" plain (function org-roam--capture-get-point)
+           "%?"
+           :file-name "${slug}"
+           :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n#+roam_alias: \n#+roam_tags: \n"
+           :unnarrowed t))
 
 
 (use-package deft
@@ -142,7 +148,8 @@
       :custom
       (deft-recursive t)
       (deft-use-filter-string-for-filename t)
-      (deft-default-extension "org")
+      (deft-use-filename-as-title t)
+      (deft-default-extension '("org" "md"))
       (deft-directory org_notes))
 
 ;; Allows you to refile into different files - specifically to
@@ -243,18 +250,22 @@
         '(("r" "ref" plain (function org-roam-capture--get-point)
            ""
            :file-name "${slug}"
-           :head "#+TITLE: ${=key=}: ${title}\n#+ROAM_KEY: ${ref}
-- tags ::
+           :head "#+title: ${=key=}: ${title}\n#+roam_key: ${ref}
+#+roam_tags:
 - keywords :: ${keywords}
 \n* ${title}\n  :PROPERTIES:\n  :Custom_ID: ${=key=}\n  :URL: ${url}\n  :AUTHOR: ${author-or-editor}\n  :NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n  :NOTER_PAGE: \n  :END:\n\n"
            :unnarrowed t))))
 
 (use-package org-journal
       :bind
-      ("C-c n j" . org-journal-new-entry)
+      (("C-c n j" . org-journal-new-entry)
+      ("C-c j n" . org-journal-new-entry)
+      ("C-c j s" . org-journal-search)
+      ("C-c j f" . org-journal-open-next-entry)
+      ("C-c j b" . org-journal-open-previous-entry))
       :custom
       (org-journal-dir org_notes)
-      (org-journal-date-prefix "#+TITLE: ")
+      (org-journal-date-prefix "#+title: ")
       (org-journal-file-format "%Y-%m-%d.org")
       (org-journal-date-format "%A, %d %B %Y"))
 (setq org-journal-enable-agenda-integration t)
@@ -266,3 +277,8 @@
   :config
   (setq nov-save-place-file (concat doom-cache-dir "nov-places")))
 
+(setq org-pomodoro-play-sounds t
+      org-pomodoro-short-break-sound-p t
+      org-pomodoro-long-break-sound-p t
+      org-pomodoro-short-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff")
+      org-pomodoro-long-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff"))
