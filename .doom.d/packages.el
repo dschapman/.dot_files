@@ -40,11 +40,11 @@
 ;; from Doom or MELPA/ELPA/Emacsmirror:
 ;(package! builtin-package :recipe (:nonrecursive t))
 ;(package! builtin-package-2 :recipe (:repo "myfork/package"))
-
 ;; Specify a `:branch' to install a package from a particular branch or tag.
 ;; This is required for some packages whose default branch isn't 'master' (which
 ;; our package manager can't deal with; see raxod502/straight.el#279)
 ;(package! builtin-package :recipe (:branch "develop"))
+(package! mixed-pitch)
 (package! org-ref)
 ;;(package! md-roam :recipe
 ;;  (:local-repo "~/Git-Projects/md-roam"))
@@ -55,3 +55,6 @@
 (package! company-org-roam)
 (package! centaur-tabs)
 (package! org-pomodoro)
+(package! org-noter)
+(package! org-noter-pdftools)
+(package! org-roam-bibtex)

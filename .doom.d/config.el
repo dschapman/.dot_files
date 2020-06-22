@@ -19,7 +19,9 @@
 ;;
 ;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 ;; font string. You generally only need these two:
-(setq doom-font (font-spec :family "Adobe Garamond Pro" :size 18))
+;;(setq doom-font (font-spec :family "Adobe Garamond Pro" :size 18))
+(setq doom-font (font-spec :family "Fira Code Light" :size 16)
+      doom-variable-pitch-font (font-spec :family "Adobe Garamond Pro"))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
@@ -29,7 +31,12 @@
 ;; Hide Line numbers
 (setq display-line-numbers-type nil)
 
-(setq +doom-dashboard-banner-file (expand-file-name "misc/splash-images/logo.png" doom-private-dir))
+
+(use-package mixed-pitch
+  :hook
+  ;; If you want it in all text modes:
+  (text-mode . mixed-pitch-mode))
+
 ;; add tabs with centaur-tabs
 ;;
 (use-package! centaur-tabs
@@ -50,21 +57,23 @@
 ;; set directories for org
 (setq
  org_notes "~/OneDrive/3-resources/org-roam"
- public_notes "~/Git-Projects/PersonalBlog/content/notes"
+ public_notes "~/Git/my-website/content/notes"
  org-directory org_notes
  deft-directory org_notes
- zot_bib "~/OneDrive/3-resources/org-roam/masterLib.bib")
+ zot_bib "~/OneDrive/3-resources/org-roam/masterLib.bib"
+ org-journal-dir org_notes)
 
 
+(use-package! md-roam ; load immediately, before org-roam
+  :config
+  (setq md-roam-file-extension-single "md"))
 
-    ;you can omit this if md, which is the default.
 (use-package org-roam
   :init
   (setq org-roam-directory org_notes)
   ;; add markdown extension to org-roam-file-extensions list
   (setq org-roam-file-extensions '("org" "md"))
   (setq org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias)))
-
   :hook
       (after-init . org-roam-mode)
       :bind (:map org-roam-mode-map
@@ -78,9 +87,7 @@
               :map org-mode-map
               (("C-c n i" . org-roam-insert))
               (("C-c n I" . org-roam-insert-immediate))))
-(use-package! md-roam ; load immediately, before org-roam
-  :config
-  (setq md-roam-file-extension-single "md")) 
+
 
 
 (after! org-roam
@@ -100,14 +107,7 @@
 
 (use-package org-roam-server
   :ensure t
-  :config
-  (setq org-roam-server-host "127.0.0.1"
-        org-roam-server-port 8080
-        org-roam-server-export-inline-images t
-        org-roam-server-authenticate nil
-        org-roam-server-label-truncate t
-        org-roam-server-label-truncate-length 60
-        org-roam-server-label-wrap-length 20))
+)
 
 ;;My Roam Capture Templates
   (setq org-roam-capture-templates
@@ -121,8 +121,14 @@
           ("b" "book" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags:\n:author:\n:medium: [[file:Books.org][Book]]\n:GENRE:"
+           :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n#+roam_alias: \n#+roam_tags: \"book\"\n:author:\n:medium: [[file:Books.org][Book]]\n:GENRE:"
            :unnarrowed t)
+          ("B" "book of the bible" plain (function org-roam--capture-get-point)
+           "%?"
+           :file-name "${slug}"
+           :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n#+roam_alias: \n#+roam_tags: \"bible\"\n[[file:20200522110628-the_bible.org][The Bible]]\n"
+           :unnarrowed t
+           :immediate-finish t)
 
         ("m" "meeting" plain (function org-roam--capture-get-point)
          "%?"
@@ -144,13 +150,13 @@
 (use-package deft
       :after org
       :bind
-      ("C-c n d" . deft)
-      :custom
-      (deft-recursive t)
-      (deft-use-filter-string-for-filename t)
-      (deft-use-filename-as-title t)
-      (deft-default-extension '("org" "md"))
-      (deft-directory org_notes))
+      ("C-c n d" . deft))
+(setq
+      deft-recursive t
+      deft-use-filter-string-for-filename t
+      deft-use-filename-as-title t
+      deft-default-extension '("org" "md")
+      deft-directory org_notes)
 
 ;; Allows you to refile into different files - specifically to
 ;; create new 'parent' headings
@@ -262,13 +268,14 @@
       ("C-c j n" . org-journal-new-entry)
       ("C-c j s" . org-journal-search)
       ("C-c j f" . org-journal-open-next-entry)
-      ("C-c j b" . org-journal-open-previous-entry))
-      :custom
-      (org-journal-dir org_notes)
-      (org-journal-date-prefix "#+title: ")
-      (org-journal-file-format "%Y-%m-%d.org")
-      (org-journal-date-format "%A, %d %B %Y"))
-(setq org-journal-enable-agenda-integration t)
+      ("C-c j b" . org-journal-open-previous-entry)
+      ("C-c j o" . org-journal-open-current-journal-file))
+      :init
+      (setq
+      org-journal-date-prefix "#+title: "
+      org-journal-file-format "%Y-%m-%d.org"
+      org-journal-date-format "%A, %d %B %Y")
+(setq org-journal-enable-agenda-integration t))
 
 
 ;;epub
@@ -282,3 +289,18 @@
       org-pomodoro-long-break-sound-p t
       org-pomodoro-short-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff")
       org-pomodoro-long-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff"))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values
+   (quote
+    ((eval setq-local org-roam-directory
+           (expand-file-name "./"))))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
