@@ -104,6 +104,9 @@
 
 (set-company-backend! 'org-mode 'company-org-roam)
 (set-company-backend! 'markdown-mode 'company-org-roam)
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+
 
 (use-package org-roam-server
   :ensure t
@@ -115,18 +118,18 @@
           ("d" "default" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n#+roam_alias: \n#+roam_tags: \n"
+           :head "#+title: ${title}\n#+created: %u\n#+roam_alias: \n#+roam_tags: \n"
            :unnarrowed t)
 
           ("b" "book" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n#+roam_alias: \n#+roam_tags: \"book\"\n:author:\n:medium: [[file:Books.org][Book]]\n:GENRE:"
+           :head "#+title: ${title}\n#+created: %u\n#+roam_alias: \n#+roam_tags: \"book\"\n:author:\n:medium: [[file:Books.org][Book]]\n:GENRE:"
            :unnarrowed t)
           ("B" "book of the bible" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n#+roam_alias: \n#+roam_tags: \"bible\"\n[[file:20200522110628-the_bible.org][The Bible]]\n"
+           :head "#+title: ${title}\n#+created: %uU\n#+roam_alias: \n#+roam_tags: \"bible\"\n[[file:20200522110628-the_bible.org][The Bible]]\n"
            :unnarrowed t
            :immediate-finish t)
 
@@ -143,7 +146,7 @@
       '("d" "default" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n#+roam_alias: \n#+roam_tags: \n"
+           :head "#+title: ${title}\n#+created: %u\n#+roam_alias: \n#+roam_tags: \n"
            :unnarrowed t))
 
 
@@ -157,6 +160,7 @@
       deft-use-filename-as-title t
       deft-default-extension '("org" "md")
       deft-directory org_notes)
+
 
 ;; Allows you to refile into different files - specifically to
 ;; create new 'parent' headings
