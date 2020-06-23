@@ -104,9 +104,6 @@
 
 (set-company-backend! 'org-mode 'company-org-roam)
 (set-company-backend! 'markdown-mode 'company-org-roam)
-(use-package company-box
-  :hook (company-mode . company-box-mode))
-
 
 (use-package org-roam-server
   :ensure t
