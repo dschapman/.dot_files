@@ -37,6 +37,18 @@
   ;; If you want it in all text modes:
   (text-mode . mixed-pitch-mode))
 
+;; Hide the emphasis markup (e.g * / _ )
+(setq org-hide-emphasis-markers t)
+
+;; use visual line-mode automattically for org buffers
+(add-hook 'org-mode-hook 'visual-line-mode)
+
+;; Create a bullet for lists
+(font-lock-add-keywords 'org-mode
+                        '(("^ *\\([-]\\) "
+                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+
 ;; add tabs with centaur-tabs
 ;;
 (use-package! centaur-tabs
