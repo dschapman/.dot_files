@@ -302,4 +302,4 @@
       org-pomodoro-long-break-sound-p t
       org-pomodoro-short-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff")
       org-pomodoro-long-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff")
-      org-pomodoro-finished-sound (expand-file-name "/System/Library/SoundsGlass.aiff"))
+      org-pomodoro-finished-sound (expand-file-name "/System/Library/Sounds/Glass.aiff"))
