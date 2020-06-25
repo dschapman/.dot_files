@@ -301,19 +301,5 @@
       org-pomodoro-short-break-sound-p t
       org-pomodoro-long-break-sound-p t
       org-pomodoro-short-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff")
-      org-pomodoro-long-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff"))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(safe-local-variable-values
-   (quote
-    ((eval setq-local org-roam-directory
-           (expand-file-name "./"))))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+      org-pomodoro-long-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff")
+      org-pomodoro-finished-sound (expand-file-name "/System/Library/SoundsGlass.aiff"))
