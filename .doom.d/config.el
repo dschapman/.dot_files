@@ -69,16 +69,31 @@
 ;; set directories for org
 (setq
  org_notes "~/OneDrive/3-resources/org-roam"
- public_notes "~/Git/my-website/content/notes"
+ public_notes "~/github/dschapman/my-website/content/notes"
  org-directory org_notes
  deft-directory org_notes
  zot_bib "~/OneDrive/3-resources/org-roam/masterLib.bib"
  org-journal-dir org_notes)
 
+;; I use C-c c to start capture mode
+(global-set-key (kbd "C-c c") 'org-capture)
 
-(use-package! md-roam ; load immediately, before org-roam
+
+
+;; Jump to public notes
+(use-package! dired
   :config
-  (setq md-roam-file-extension-single "md"))
+  (defun my/dired-open-public-notes-dir ()
+    "Open and switch to `public-notes-directory'."
+    (interactive)
+    (require 'ido)
+    (dired (ido-expand-directory public_notes))))
+
+
+(after! org
+  (setq org-capture-templates
+      '(("t" "Todo" entry (file "~/Onedrive/3-resources/org-roam/todo.org")
+         "* TODO %?\n  %i\n  %a"))))
 
 (use-package org-roam
   :init
@@ -101,7 +116,6 @@
               (("C-c n I" . org-roam-insert-immediate))))
 
 
-
 (after! org-roam
   (setq org-roam-graph-viewer "/usr/bin/open")
   (setq org-roam-ref-capture-templates
@@ -112,17 +126,26 @@
 #+roam_key: ${ref}
 #+roam_tags:
 - source :: ${ref}"
-           :unnarrowed t)))
+           :unnarrowed t))))
+
+
+
 
 (set-company-backend! 'org-mode 'company-org-roam)
 (set-company-backend! 'markdown-mode 'company-org-roam)
 
 (use-package org-roam-server
   :ensure t
-)
+  )
+
+(add-to-list 'auto-mode-alist '("\\.mdx\\'" . markdown-mode))
+
+(use-package! md-roam ; load immediately, before org-roam
+  :config
+  (setq md-roam-file-extension-single "md"))
 
 ;;My Roam Capture Templates
-  (setq org-roam-capture-templates
+(setq org-roam-capture-templates
         '(
           ("d" "default" plain (function org-roam--capture-get-point)
            "%?"
@@ -149,7 +172,7 @@
          :unnarrowed t
          :immediate-finish t))
   )
-)
+
 ;; immediate capture
 (setq org-roam-capture-immediate-template
       '("d" "default" plain (function org-roam--capture-get-point)
@@ -287,8 +310,9 @@
       (setq
       org-journal-date-prefix "#+title: "
       org-journal-file-format "%Y-%m-%d.org"
-      org-journal-date-format "%A, %d %B %Y")
-(setq org-journal-enable-agenda-integration t))
+      org-journal-date-format "%A, %d %B %Y"
+      org-journal-carryover-items "TODO=\"TODO\"")
+)
 
 
 ;;epub
@@ -303,3 +327,17 @@
       org-pomodoro-short-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff")
       org-pomodoro-long-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff")
       org-pomodoro-finished-sound (expand-file-name "/System/Library/Sounds/Glass.aiff"))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values
+   (quote
+    ((org-roam-directory . "~/github/dschapman/my-website/content/notes/")))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
