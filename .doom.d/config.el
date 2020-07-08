@@ -95,6 +95,9 @@
       '(("t" "Todo" entry (file "~/Onedrive/3-resources/org-roam/todo.org")
          "* TODO %?\n  %i\n  %a"))))
 
+
+(setq org-agenda-files (list "~/Onedrive/3-resources/org-roam/todo.org"))
+
 (use-package org-roam
   :init
   (setq org-roam-directory org_notes)
