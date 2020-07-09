@@ -62,14 +62,27 @@
      (centaur-tabs-mode t))
 
 
+;; Hide LF UTF-8 in the bottom bar
+(defun doom-modeline-conditional-buffer-encoding ()
+  "We expect the encoding to be LF UTF-8, so only show the modeline when this is not the case"
+  (setq-local doom-modeline-buffer-encoding
+              (unless (or (eq buffer-file-coding-system 'utf-8-unix)
+                          (eq buffer-file-coding-system 'utf-8)))))
+
+;; Slightly nicer default buffer names
+(setq doom-fallback-buffer-name "► Doom"
+      +doom-dashboard-name "► Doom")
+
+(add-hook 'after-change-major-mode-hook #'doom-modeline-conditional-buffer-encoding)
+
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-
-
 ;; set directories for org
 (setq
  org_notes "~/OneDrive/3-resources/org-roam"
  public_notes "~/github/dschapman/my-website/content/notes"
+ website "~/github/dschapman/my-website"
+ poetry "~/OneDrive/2-areas/poetry"
  org-directory org_notes
  deft-directory org_notes
  zot_bib "~/OneDrive/3-resources/org-roam/masterLib.bib"
@@ -80,23 +93,26 @@
 
 
 
-;; Jump to public notes
+;; Shortcuts to different locations
 (use-package! dired
   :config
   (defun my/dired-open-public-notes-dir ()
     "Open and switch to `public-notes-directory'."
     (interactive)
     (require 'ido)
-    (dired (ido-expand-directory public_notes))))
+    (dired (ido-expand-directory public_notes)))
+  (defun my/dired-open-website-dir ()
+    "Open and switch to `website-directory'."
+    (interactive)
+    (require 'ido)
+    (dired (ido-expand-directory website)))
+  (defun my/dired-open-poetry-dir ()
+    "Open and switch to `poetry-directory'."
+    (interactive)
+    (require 'ido)
+    (dired (ido-expand-directory poetry))))
 
 
-(after! org
-  (setq org-capture-templates
-      '(("t" "Todo" entry (file "~/Onedrive/3-resources/org-roam/todo.org")
-         "* TODO %?\n  %i\n  %a"))))
-
-
-(setq org-agenda-files (list "~/Onedrive/3-resources/org-roam/todo.org"))
 
 (use-package org-roam
   :init
@@ -330,6 +346,15 @@
       org-pomodoro-short-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff")
       org-pomodoro-long-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff")
       org-pomodoro-finished-sound (expand-file-name "/System/Library/Sounds/Glass.aiff"))
+
+(after! org
+  (setq org-capture-templates
+      '(("t" "Todo" entry (file "~/Onedrive/3-resources/org-roam/todo.org")
+         "* TODO %?\n  %i\n  %a"))))
+
+
+(setq org-agenda-files (list "~/Onedrive/3-resources/org-roam/todo.org"))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
