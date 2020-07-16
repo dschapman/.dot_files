@@ -31,13 +31,16 @@
 ;; Hide Line numbers
 (setq display-line-numbers-type nil)
 
+;; Customize Treemacs Icons
+(doom-themes-treemacs-config)
 
+;; Allows monospace font doom-font and doom-variable-pitch-font to coexist
 (use-package mixed-pitch
   :hook
   ;; If you want it in all text modes:
   (text-mode . mixed-pitch-mode))
 
-;; Hide the emphasis markup (e.g * / _ )
+;; Hide the emphasis markup (e.g * / _ ) in org-mode
 (setq org-hide-emphasis-markers t)
 
 ;; use visual line-mode automattically for org buffers
@@ -61,6 +64,17 @@
            centaur-tabs-modified-marker "•")
      (centaur-tabs-mode t))
 
+;; Create buffer previews when using evil-window-split
+(setq evil-vsplit-window-right t
+      evil-split-window-below t)
+(defadvice! prompt-for-buffer (&rest _)
+  :after '(evil-window-split evil-window-vsplit)
+  (+ivy/switch-buffer))
+(setq +ivy-buffer-preview t)
+
+;; rotate layout
+(map! :map evil-window-map
+      "SPC" #'rotate-layout)
 
 ;; Hide LF UTF-8 in the bottom bar
 (defun doom-modeline-conditional-buffer-encoding ()
@@ -360,6 +374,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (literate-elisp literate-starter-kit org-noter-pdftools org-roam-server org-roam-bibtex org-ref org-noter org-journal-list org-journal company-org-roam)))
  '(safe-local-variable-values
    (quote
     ((org-roam-directory . "~/github/dschapman/my-website/content/notes/")))))
