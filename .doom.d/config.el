@@ -21,17 +21,18 @@
 ;; font string. You generally only need these two:
 ;;(setq doom-font (font-spec :family "Adobe Garamond Pro" :size 18))
 (setq doom-font (font-spec :family "Fira Code Light" :size 16)
-      doom-variable-pitch-font (font-spec :family "Adobe Garamond Pro"))
+      doom-variable-pitch-font (font-spec :family "Adobe Garamond Pro")
+      doom-unicode-font (font-spec :family "Apple Color Emoji"))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-tomorrow-day)
+(setq doom-theme 'doom-nord-light)
 
 ;; Hide Line numbers
 (setq display-line-numbers-type nil)
 
-;; Customize Treemacs Icons
+;; Customize Treemacs Icons to use Doom Theme
 (doom-themes-treemacs-config)
 
 ;; Allows monospace font doom-font and doom-variable-pitch-font to coexist
@@ -54,15 +55,15 @@
 
 ;; add tabs with centaur-tabs
 ;;
-(use-package! centaur-tabs
-   :config
-     (setq centaur-tabs-set-bar 'over
-           centaur-tabs-set-icons t
-           centaur-tabs-gray-out-icons 'buffer
-           centaur-tabs-height 24
-           centaur-tabs-set-modified-marker t
-           centaur-tabs-modified-marker "•")
-     (centaur-tabs-mode t))
+;; (use-package! centaur-tabs
+;;    :config
+;;      (setq centaur-tabs-set-bar 'over
+;;            centaur-tabs-set-icons t
+;;            centaur-tabs-gray-out-icons 'buffer
+;;            centaur-tabs-height 24
+;;            centaur-tabs-set-modified-marker t
+;;            centaur-tabs-modified-marker "•")
+;;      (centaur-tabs-mode t))
 
 ;; Create buffer previews when using evil-window-split
 (setq evil-vsplit-window-right t
@@ -93,17 +94,18 @@
 ;; change `org-directory'. It must be set before org loads!
 ;; set directories for org
 (setq
- org_notes "~/OneDrive/3-resources/org-roam"
+ org_notes "~/OneDrive/org/org-roam"
  public_notes "~/github/dschapman/my-website/content/notes"
  website "~/github/dschapman/my-website"
- poetry "~/OneDrive/2-areas/poetry"
- org-directory org_notes
- deft-directory org_notes
- zot_bib "~/OneDrive/3-resources/org-roam/masterLib.bib"
+ poetry "~/OneDrive/org/poetry"
+ org-directory "~/OneDrive/org"
+ deft-directory org-directory
+ zot_bib "~/OneDrive/org/org-roam/masterLib.bib"
  org-journal-dir org_notes)
 
 ;; I use C-c c to start capture mode
 (global-set-key (kbd "C-c c") 'org-capture)
+
 
 
 
@@ -127,13 +129,38 @@
     (dired (ido-expand-directory poetry))))
 
 
+(defun my/org-export-each-headline-to-markdown (&optional scope)
+  "Export each headline to a markdown file with the title as filename.
+If SCOPE is nil headlines in the current buffer are exported.
+For other valid values for SCOPE see `org-map-entries'.
+Already existing files are overwritten."
+  (interactive)
+  ;; Widen buffer temporarily as narrowing would affect the exporting.
+  (org-with-wide-buffer
+   (save-mark-and-excursion
+     ;; Loop through each headline.
+     (org-map-entries
+      (lambda ()
+        ;; Get the plain headline text without statistics and make filename.
+        (let* ((title (car (last (org-get-outline-path t))))
+               (dir (file-name-directory buffer-file-name))
+               (filename (concat dir title ".md")))
+          ;; Set the active region.
+          (set-mark (point))
+          (outline-next-preface)
+          (activate-mark)
+          ;; Export the region to a markdown file.
+          (with-current-buffer (org-md-export-as-markdown)
+            ;; Save the buffer to file and kill it.
+            (write-file filename)
+            (kill-current-buffer))))
+      nil scope))))
+
 
 (use-package org-roam
   :init
   (setq org-roam-directory org_notes)
   ;; add markdown extension to org-roam-file-extensions list
-  (setq org-roam-file-extensions '("org" "md"))
-  (setq org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias)))
   :hook
       (after-init . org-roam-mode)
       :bind (:map org-roam-mode-map
@@ -163,19 +190,15 @@
 
 
 
-
-(set-company-backend! 'org-mode 'company-org-roam)
-(set-company-backend! 'markdown-mode 'company-org-roam)
-
 (use-package org-roam-server
   :ensure t
   )
 
 (add-to-list 'auto-mode-alist '("\\.mdx\\'" . markdown-mode))
 
-(use-package! md-roam ; load immediately, before org-roam
-  :config
-  (setq md-roam-file-extension-single "md"))
+;;(use-package! md-roam ; load immediately, before org-roam
+;;  :config
+;;  (setq md-roam-file-extension-single "md"))
 
 ;;My Roam Capture Templates
 (setq org-roam-capture-templates
@@ -224,7 +247,7 @@
       deft-use-filter-string-for-filename t
       deft-use-filename-as-title t
       deft-default-extension '("org" "md")
-      deft-directory org_notes)
+      deft-directory org-directory)
 
 
 ;; Allows you to refile into different files - specifically to
@@ -363,11 +386,14 @@
 
 (after! org
   (setq org-capture-templates
-      '(("t" "Todo" entry (file "~/Onedrive/3-resources/org-roam/todo.org")
+      '(("t" "Todo" entry (file "~/Onedrive/org/org-roam/todo.org")
          "* TODO %?\n  %i\n  %a"))))
 
 
-(setq org-agenda-files (list "~/Onedrive/3-resources/org-roam/todo.org"))
+(setq org-agenda-files (list "~/Onedrive/org/org-roam/todo.org"))
+
+
+(setq org-babel-clojure-backend 'cider)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -376,7 +402,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (literate-elisp literate-starter-kit org-noter-pdftools org-roam-server org-roam-bibtex org-ref org-noter org-journal-list org-journal company-org-roam)))
+    (literate-elisp literate-starter-kit org-noter-pdftools org-roam-server org-roam-bibtex org-ref org-noter org-journal-list org-journal)))
  '(safe-local-variable-values
    (quote
     ((org-roam-directory . "~/github/dschapman/my-website/content/notes/")))))
