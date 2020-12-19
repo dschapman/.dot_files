@@ -1,7 +1,52 @@
 {
-:main [{:des "taps"
+:profiles {
+    :Default {  :default true
+                :sim     200    ;; simultaneous_threshold_milliseconds (def: 50)
+                                ;; keys need to be pressed within this threshold to be considered simultaneous
+                :delay   500    ;; to_delayed_action_delay_milliseconds (def: 500)
+                                ;; basically it means time after which the key press is count delayed
+                :alone   500    ;; to_if_alone_timeout_milliseconds (def: 1000)
+                                ;; hold for 995s and single tap registered; hold for 1005s and seen as modifier
+                :held    1000   ;; to_if_held_down_threshold_milliseconds (def: 500)
+                                ;; key is fired twice when 500 ms is elapsed (otherwise seen as a hold command)
+             }
+}
+:simlayers {:open-mode {:key :o}
+           :emoji-mode {:key :z}
+           :spacebar-mode {:key :spacebar}}
+:templates {
+        :code-project "osascript -e 'tell application \"Visual Studio Code\" to activate' &&
+                            open -a 'Visual Studio Code' %s -g %s
+                            "
+        :launch "osascript -e 'tell application \"%s\" to activate'"
+        :paste "osascript -e '
+                        set the clipboard to \"%s\"
+                        tell application \"System Events\"
+                                keystroke \"v\" using command down
+                        end tell
+                '"
+}
+:main [
+        {:des "taps"
         :rules [[:##left_shift :left_shift nil {:alone :delete_or_backspace}]
-                [:right_shift :right_shift nil {:alone :delete_forward}]
-                [:caps_lock :left_control nil {:alone :caps_lock}]]}
-]}
+                [:right_shift :right_shift nil {:alone :delete_forward}]]}
+         
+        {:des "open files"
+        :rules [:open-mode
+        [:k [:code-project "~/.config/" "~/.config/karabiner.edn"]]
+        ]}
+        {:des "launch"
+        :rules [:spacebar-mode
+        [:e [:launch "Emacs"]]
+        [:s [:launch "Slack"]]
+        [:t [:launch "Terminal"]]
+        [:w [:launch "Microsoft Edge"]]]} ;Web Browser
+        {:des "emojis"
+        :rules [:emoji-mode
+        [:h [:paste "❤️"]]]
+        }]}
+
+
+
+
  
