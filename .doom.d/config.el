@@ -19,186 +19,35 @@
 ;;
 ;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 ;; font string. You generally only need these two:
-;;(setq doom-font (font-spec :family "Adobe Garamond Pro" :size 18))
+;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
+;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
 (setq doom-font (font-spec :family "Fira Code Light" :size 16)
-      doom-variable-pitch-font (font-spec :family "Adobe Garamond Pro")
+      doom-variable-pitch-font (font-spec :family "Helvetica Neue" :weight 'light)
       doom-unicode-font (font-spec :family "Apple Color Emoji"))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-nord-light)
-
-;; Hide Line numbers
-(setq display-line-numbers-type nil)
-
-;; Customize Treemacs Icons to use Doom Theme
-(doom-themes-treemacs-config)
-
-;; Allows monospace font doom-font and doom-variable-pitch-font to coexist
-(use-package mixed-pitch
-  :hook
-  ;; If you want it in all text modes:
-  (text-mode . mixed-pitch-mode))
-
-;; Hide the emphasis markup (e.g * / _ ) in org-mode
-(setq org-hide-emphasis-markers t)
-
-;; use visual line-mode automattically for org buffers
-(add-hook 'org-mode-hook 'visual-line-mode)
-
-;; Create a bullet for lists
-(font-lock-add-keywords 'org-mode
-                        '(("^ *\\([-]\\) "
-                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-
-
-;; add tabs with centaur-tabs
-;;
-;; (use-package! centaur-tabs
-;;    :config
-;;      (setq centaur-tabs-set-bar 'over
-;;            centaur-tabs-set-icons t
-;;            centaur-tabs-gray-out-icons 'buffer
-;;            centaur-tabs-height 24
-;;            centaur-tabs-set-modified-marker t
-;;            centaur-tabs-modified-marker "•")
-;;      (centaur-tabs-mode t))
-
-;; Create buffer previews when using evil-window-split
-(setq evil-vsplit-window-right t
-      evil-split-window-below t)
-(defadvice! prompt-for-buffer (&rest _)
-  :after '(evil-window-split evil-window-vsplit)
-  (+ivy/switch-buffer))
-(setq +ivy-buffer-preview t)
-
-;; rotate layout
-(map! :map evil-window-map
-      "SPC" #'rotate-layout)
-
-;; Hide LF UTF-8 in the bottom bar
-(defun doom-modeline-conditional-buffer-encoding ()
-  "We expect the encoding to be LF UTF-8, so only show the modeline when this is not the case"
-  (setq-local doom-modeline-buffer-encoding
-              (unless (or (eq buffer-file-coding-system 'utf-8-unix)
-                          (eq buffer-file-coding-system 'utf-8)))))
-
-;; Slightly nicer default buffer names
-(setq doom-fallback-buffer-name "► Doom"
-      +doom-dashboard-name "► Doom")
-
-(add-hook 'after-change-major-mode-hook #'doom-modeline-conditional-buffer-encoding)
+(setq doom-theme 'doom-tomorrow-day)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-;; set directories for org
-(setq
- org_notes "~/OneDrive/org/org-roam"
- public_notes "~/github/dschapman/my-website/content/notes"
- website "~/github/dschapman/my-website"
- poetry "~/OneDrive/org/poetry"
- org-directory "~/OneDrive/org"
- deft-directory org-directory
- zot_bib "~/OneDrive/org/org-roam/masterLib.bib"
- org-journal-dir org_notes)
+(setq org-directory "~/OneDrive/org/"
+      org_notes "~/OneDrive/org/org-roam")
 
-;; I use C-c c to start capture mode
-(global-set-key (kbd "C-c c") 'org-capture)
-
-
-
-
-;; Shortcuts to different locations
-(use-package! dired
-  :config
-  (defun my/dired-open-public-notes-dir ()
-    "Open and switch to `public-notes-directory'."
-    (interactive)
-    (require 'ido)
-    (dired (ido-expand-directory public_notes)))
-  (defun my/dired-open-website-dir ()
-    "Open and switch to `website-directory'."
-    (interactive)
-    (require 'ido)
-    (dired (ido-expand-directory website)))
-  (defun my/dired-open-poetry-dir ()
-    "Open and switch to `poetry-directory'."
-    (interactive)
-    (require 'ido)
-    (dired (ido-expand-directory poetry))))
-
-
-(defun my/org-export-each-headline-to-markdown (&optional scope)
-  "Export each headline to a markdown file with the title as filename.
-If SCOPE is nil headlines in the current buffer are exported.
-For other valid values for SCOPE see `org-map-entries'.
-Already existing files are overwritten."
-  (interactive)
-  ;; Widen buffer temporarily as narrowing would affect the exporting.
-  (org-with-wide-buffer
-   (save-mark-and-excursion
-     ;; Loop through each headline.
-     (org-map-entries
-      (lambda ()
-        ;; Get the plain headline text without statistics and make filename.
-        (let* ((title (car (last (org-get-outline-path t))))
-               (dir (file-name-directory buffer-file-name))
-               (filename (concat dir title ".md")))
-          ;; Set the active region.
-          (set-mark (point))
-          (outline-next-preface)
-          (activate-mark)
-          ;; Export the region to a markdown file.
-          (with-current-buffer (org-md-export-as-markdown)
-            ;; Save the buffer to file and kill it.
-            (write-file filename)
-            (kill-current-buffer))))
-      nil scope))))
-
-
+;; enable org-roam
 (use-package org-roam
   :init
-  (setq org-roam-directory org_notes)
-  ;; add markdown extension to org-roam-file-extensions list
-  :hook
-      (after-init . org-roam-mode)
-      :bind (:map org-roam-mode-map
-              (("C-c n r" . org-roam)
-               ("C-c n f" . org-roam-find-file)
-               ("C-c n h" . org-roam-jump-to-index)
-               ("C-c n b" . org-roam-switch-to-buffer)
-               ("C-c n g" . org-roam-graph)
-               ("C-c n i" . org-roam-insert)
-               )
-              :map org-mode-map
-              (("C-c n i" . org-roam-insert))
-              (("C-c n I" . org-roam-insert-immediate))))
+  (setq org-roam-directory org_notes))
 
+(setq org-roam-dailies-directory "journals/")
 
-(after! org-roam
-  (setq org-roam-graph-viewer "/usr/bin/open")
-  (setq org-roam-ref-capture-templates
-        '(("r" "ref" plain (function org-roam-capture--get-point)
-           "%?"
-           :file-name "websites/${slug}"
-           :head "#+title: ${title}
-#+roam_key: ${ref}
-#+roam_tags:
-- source :: ${ref}"
-           :unnarrowed t))))
-
-
-
-(use-package org-roam-server
-  :ensure t
-  )
-
-(add-to-list 'auto-mode-alist '("\\.mdx\\'" . markdown-mode))
-
-;;(use-package! md-roam ; load immediately, before org-roam
-;;  :config
-;;  (setq md-roam-file-extension-single "md"))
+(setq org-roam-dailies-capture-templates
+      '(("d" "default" entry
+         #'org-roam-capture--get-point
+         "* %?"
+         :file-name "journals/%<%Y-%m-%d>"
+         :head "#+title: %<%Y-%m-%d>\n\n")))
 
 ;;My Roam Capture Templates
 (setq org-roam-capture-templates
@@ -212,7 +61,7 @@ Already existing files are overwritten."
           ("b" "book" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+title: ${title}\n#+created: %u\n#+roam_alias: \n#+roam_tags: \"book\"\n:author:\n:medium: [[file:Books.org][Book]]\n:GENRE:"
+           :head "#+title: ${title}\n#+created: %u\n#+roam_alias: \n#+roam_tags: \"book\"\n- author ::\n- medium :: [[file:Books.org][Book]]\n- genre ::"
            :unnarrowed t)
           ("B" "book of the bible" plain (function org-roam--capture-get-point)
            "%?"
@@ -229,25 +78,37 @@ Already existing files are overwritten."
          :immediate-finish t))
   )
 
-;; immediate capture
-(setq org-roam-capture-immediate-template
-      '("d" "default" plain (function org-roam--capture-get-point)
-           "%?"
-           :file-name "${slug}"
-           :head "#+title: ${title}\n#+created: %u\n#+roam_alias: \n#+roam_tags: \n"
-           :unnarrowed t))
+(unless (server-running-p)
+  (org-roam-server-mode))
 
 
-(use-package deft
-      :after org
-      :bind
-      ("C-c n d" . deft))
-(setq
-      deft-recursive t
-      deft-use-filter-string-for-filename t
-      deft-use-filename-as-title t
-      deft-default-extension '("org" "md")
-      deft-directory org-directory)
+;; This determines the style of line numbers in effect. If set to `nil', line
+;; numbers are disabled. For relative line numbers, set this to `relative'.
+(setq display-line-numbers-type t)
+
+
+;; Here are some additional functions/macros that could help you configure Doom:
+;;
+;; - `load!' for loading external *.el files relative to this one
+;; - `use-package!' for configuring packages
+;; - `after!' for running code after a package has loaded
+;; - `add-load-path!' for adding directories to the `load-path', relative to
+;;   this file. Emacs searches the `load-path' when you load packages with
+;;   `require' or `use-package'.
+;; - `map!' for binding new keys
+;;
+;; To get information about any of these functions/macros, move the cursor over
+;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
+;; This will open documentation for it, including demos of how they are used.
+;;
+;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
+;; they are implemented.
+
+;; Allows monospace font doom-font and doom-variable-pitch-font to coexist
+(use-package mixed-pitch
+  :hook
+  ;; If you want it in all text modes:
+  (text-mode . mixed-pitch-mode))
 
 
 ;; Allows you to refile into different files - specifically to
@@ -269,146 +130,3 @@ Already existing files are overwritten."
                 (buffer-list))))
 
 (setq org-refile-targets '((+org/opened-buffer-files :maxlevel . 9)))
-;;
-;; org noter
-(use-package! org-noter
-  :after (:any org pdf-view)
-  :config
-    (setq
-    ;; The WM can handle splits
-     org-noter-notes-window-location 'horizontal-split
-     ;; Please stop opening frames
-     org-noter-always-create-frame nil
-     ;; I want to see the whole file
-     org-noter-hide-other nil
-     ;; Everything is relative to the main notes file
-     org-noter-notes-search-path (list org_notes)
-   )
-    )
-
-;; pdf tools
-;;
-(use-package pdf-tools
-   :ensure t
-   :config
-   (pdf-tools-install))
-
-(use-package org-pdftools
-  :hook (org-load . org-pdftools-setup-link))
-
-(use-package org-noter-pdftools
-  :after org-noter
-  :config
-  (with-eval-after-load 'pdf-annot
-    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
-;; helm bibtex
-(setq
- bibtex-completion-notes-path org_notes
- bibtex-completion-bibliography zot_bib
- bibtex-completion-pdf-field "file"
- bibtex-completion-notes-template-multiple-files
- (concat
-  "#+TITLE: ${title}\n"
-  "#+ROAM_KEY: cite:${=key=}\n"
-  "* TODO Notes\n"
-  ":PROPERTIES:\n"
-  ":Custom_ID: ${=key=}\n"
-  ":NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n"
-  ":AUTHOR: ${author-abbrev}\n"
-  ":JOURNAL: ${journaltitle}\n"
-  ":DATE: ${date}\n"
-  ":YEAR: ${year}\n"
-  ":DOI: ${doi}\n"
-  ":URL: ${url}\n"
-  ":END:\n\n"
-  )
- )
-;; org-ref
-;;
-(use-package! org-ref
-    :config
-    (setq
-         org-ref-completion-library 'org-ref-ivy-cite
-         org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
-         org-ref-default-bibliography (list zot_bib)
-         org-ref-bibliography-notes (concat org_notes "/bibnotes.org")
-         org-ref-note-title-format "* TODO %y - %t\n :PROPERTIES:\n  :Custom_ID: %k\n  :NOTER_DOCUMENT: %F\n :ROAM_KEY: cite:%k\n  :AUTHOR: %9a\n  :JOURNAL: %j\n  :YEAR: %y\n  :VOLUME: %v\n  :PAGES: %p\n  :DOI: %D\n  :URL: %U\n :END:\n\n"
-         org-ref-notes-directory org_notes
-         org-ref-notes-function 'orb-edit-notes
-         ))
-;; org roam bibtext
-;;
-(use-package org-roam-bibtex
-  :after (org-roam)
-  :hook (org-roam-mode . org-roam-bibtex-mode)
-  :config
-  (setq orb-preformat-keywords
-   '("=key=" "title" "url" "file" "author-or-editor" "keywords"))
-  (setq orb-templates
-        '(("r" "ref" plain (function org-roam-capture--get-point)
-           ""
-           :file-name "${slug}"
-           :head "#+title: ${=key=}: ${title}\n#+roam_key: ${ref}
-#+roam_tags:
-- keywords :: ${keywords}
-\n* ${title}\n  :PROPERTIES:\n  :Custom_ID: ${=key=}\n  :URL: ${url}\n  :AUTHOR: ${author-or-editor}\n  :NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n  :NOTER_PAGE: \n  :END:\n\n"
-           :unnarrowed t))))
-
-(use-package org-journal
-      :bind
-      (("C-c n j" . org-journal-new-entry)
-      ("C-c j n" . org-journal-new-entry)
-      ("C-c j s" . org-journal-search)
-      ("C-c j f" . org-journal-open-next-entry)
-      ("C-c j b" . org-journal-open-previous-entry)
-      ("C-c j o" . org-journal-open-current-journal-file))
-      :init
-      (setq
-      org-journal-date-prefix "#+title: "
-      org-journal-file-format "%Y-%m-%d.org"
-      org-journal-date-format "%A, %d %B %Y"
-      org-journal-carryover-items "TODO=\"TODO\"")
-)
-
-
-;;epub
-(use-package! nov
-  :mode ("\\.epub\\'" . nov-mode)
-  :config
-  (setq nov-save-place-file (concat doom-cache-dir "nov-places")))
-
-(setq org-pomodoro-play-sounds t
-      org-pomodoro-short-break-sound-p t
-      org-pomodoro-long-break-sound-p t
-      org-pomodoro-short-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff")
-      org-pomodoro-long-break-sound (expand-file-name "/System/Library/Sounds/Glass.aiff")
-      org-pomodoro-finished-sound (expand-file-name "/System/Library/Sounds/Glass.aiff"))
-
-(after! org
-  (setq org-capture-templates
-      '(("t" "Todo" entry (file "~/Onedrive/org/org-roam/todo.org")
-         "* TODO %?\n  %i\n  %a"))))
-
-
-(setq org-agenda-files (list "~/Onedrive/org/org-roam/todo.org"))
-
-
-(setq org-babel-clojure-backend 'cider)
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (literate-elisp literate-starter-kit org-noter-pdftools org-roam-server org-roam-bibtex org-ref org-noter org-journal-list org-journal)))
- '(safe-local-variable-values
-   (quote
-    ((org-roam-directory . "~/github/dschapman/my-website/content/notes/")))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
