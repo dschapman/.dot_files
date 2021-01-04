@@ -52,3 +52,4 @@
 (package! mixed-pitch)
 (package! org-roam-server)
 (package! ox-gfm)
+(package! org-chef)

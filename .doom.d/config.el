@@ -114,6 +114,16 @@
        :desc "Go to yesterday's journal entry" "y" #'org-roam-dailies-find-yesterday
        :desc "Go to tomorrow's journal entry" "o" #'org-roam-dailies-find-tomorrow
        :desc "Find date" "f" #'org-roam-dailies-find-date))
+(use-package org-chef
+  :ensure t)
+;; org-chef capture template
+(setq org-capture-templates
+      '(("c" "Cookbook" entry (file "~/OneDrive/org/cookbook.org")
+         "%(org-chef-get-recipe-from-url)"
+         :empty-lines 1)
+        ("m" "Manual Cookbook" entry (file "~/OneDrive/org/cookbook.org")
+         "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n  :END:\n** Ingredients\n   %?\n** Directions\n\n")))
+
 
 
 ;; Allows monospace font doom-font and doom-variable-pitch-font to coexist
