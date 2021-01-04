@@ -104,6 +104,18 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
+
+;; Add Bindings
+;; Org-Roam-Dailies shortcuts
+(map! :leader
+      (:prefix-map ("j" . "journal")
+       :desc "Capture new journal entry" "n" #'org-roam-dailies-capture-today
+       :desc "Go to today's journal entry" "t" #'org-roam-dailies-find-today
+       :desc "Go to yesterday's journal entry" "y" #'org-roam-dailies-find-yesterday
+       :desc "Go to tomorrow's journal entry" "o" #'org-roam-dailies-find-tomorrow
+       :desc "Find date" "f" #'org-roam-dailies-find-date))
+
+
 ;; Allows monospace font doom-font and doom-variable-pitch-font to coexist
 (use-package mixed-pitch
   :hook

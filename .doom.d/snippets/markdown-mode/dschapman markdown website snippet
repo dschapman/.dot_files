@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: dschapman markdown website snippet
+# key: frontmatter
+# --
+---
+title: ""
+date: "YYYY-MM-DD"
+excerpt: "This shows up as the SEO Description."
+slug: "/articles/slug"
+tags: ['']
+---
