@@ -50,6 +50,9 @@
 ;(unpin! t)
 
 (package! mixed-pitch)
-(package! org-roam-server)
-(package! ox-gfm)
-(package! org-chef)
+(package! org-roam-server) ; cool graph
+(package! ox-gfm) ; Github flavored Markdown
+(package! org-chef) ;; recipes in org mode
+(package! super-save) ;;auto-save mode
+(package! vlf) ; Very Large Files
+(package! lexic :recipe (:host github :repo "tecosaur/lexic"))

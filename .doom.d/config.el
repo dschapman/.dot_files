@@ -30,6 +30,42 @@
 ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-tomorrow-day)
 
+;; set modifed files to yellow
+(custom-set-faces!
+  '(doom-modeline-buffer-modified :foreground "orange"))
+
+;; use super-save for auto saves
+(super-save-mode +1)
+(setq super-save-auto-save-when-idle t)
+(setq auto-save-default nil)
+
+;; delete files to trash
+(setq-default delete-by-moving-to-trash t)
+
+;;better default buffer names
+(setq doom-fallback-buffer-name "► Doom"
+      +doom-dashboard-name "► Doom")
+
+(defun doom-modeline-conditional-buffer-encoding ()
+  "We expect the encoding to be LF UTF-8, so only show the modeline when this is not the case"
+  (setq-local doom-modeline-buffer-encoding
+              (unless (or (eq buffer-file-coding-system 'utf-8-unix)
+                          (eq buffer-file-coding-system 'utf-8)))))
+
+(add-hook 'after-change-major-mode-hook #'doom-modeline-conditional-buffer-encoding)
+
+;; put time in mode line
+(display-time-mode 1)
+
+(if (equal "Battery status not available"
+           (battery))
+  (display-battery-mode 1)                        ; On laptops it's nice to know how much power you have
+  (setq password-cache-expiry nil))               ; I can trust my desktops ... can't I? (no battery = desktop)
+
+;; make VLF load incrementally.
+(use-package! vlf-setup
+  :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
+
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/OneDrive/org/"
@@ -78,9 +114,6 @@
          :immediate-finish t))
   )
 
-(unless (server-running-p)
-  (org-roam-server-mode))
-
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -118,10 +151,10 @@
   :ensure t)
 ;; org-chef capture template
 (setq org-capture-templates
-      '(("c" "Cookbook" entry (file "~/OneDrive/org/cookbook.org")
+      '(("c" "Cookbook" entry (file "~/OneDrive/org/org-roam/cookbook.org")
          "%(org-chef-get-recipe-from-url)"
          :empty-lines 1)
-        ("m" "Manual Cookbook" entry (file "~/OneDrive/org/cookbook.org")
+        ("m" "Manual Cookbook" entry (file "~/OneDrive/org/org-roam/cookbook.org")
          "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n  :END:\n** Ingredients\n   %?\n** Directions\n\n")))
 
 
@@ -152,3 +185,9 @@
                 (buffer-list))))
 
 (setq org-refile-targets '((+org/opened-buffer-files :maxlevel . 9)))
+
+;; deft
+;;
+(setq deft-extensions '("org"))
+(setq deft-directory org-directory)
+(setq deft-recursive t)
